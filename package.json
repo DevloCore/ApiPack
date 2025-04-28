@@ -1,0 +1,21 @@
+{
+  "name": "@devlocore/apipack",
+  "version": "1.0.69",
+  "main": "index.js",
+  "scripts": {},
+  "author": "DevloCore",
+  "license": "ISC",
+  "description": "",
+  "type": "module",
+  "peerDependencies": {
+    "express": "*"
+  },
+  "files": [
+    "/src"
+  ],
+  "exports": {
+    "./zod": "./src/zod/zodMiddleware.js",
+    "./helper": "./src/helper.js",
+    "./log" : "./src/logHelper.js"
+  }
+}
