@@ -14,7 +14,9 @@ export function preprocessConvertion(data, shape) {
                 //     data[key] = decodeURIComponent(data[key]);
                 //     break;
                 case "ZodNumber":
-                    data[key] = Number(data[key]);
+                    const parsed = Number(data[key]);
+                    if(isNaN(data[key])) data[key] = undefined;
+                    else data[key] = parsed;
                     break;
                 case "ZodBoolean":
                     data[key] = data[key] === "true";
