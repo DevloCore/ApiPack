@@ -1,6 +1,6 @@
 /// <reference path="../types/zodMiddleware.d.ts" />
 
-import { z, ZodSchema } from "zod";
+import { z } from "zod";
 import { preprocessConvertion } from "./zodMiddlewareHelper.js";
 
 function sendErrors(errors, res) {
