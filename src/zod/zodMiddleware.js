@@ -5,13 +5,13 @@ import { preprocessConvertion } from "./zodMiddlewareHelper.js";
 
 function sendErrors(errors, res) {
     const issue = errors[0].errors.issues[0];
-    let message;
-    if(issue.path.length > 0) {
-        message = `Invalid ${issue.path.join('.')} value. ${issue.message}`;
-    }
-    else {
-        message = `Invalid ${issue.message} value`;
-    }
+    let message = issue.message;
+    // if(issue.path.length > 0) {
+    //     message = `Invalid ${issue.path.join('.')} value. ${issue.message}`;
+    // }
+    // else {
+    //     message = `Invalid ${issue.message} value`;
+    // }
     return res.status(400).send({ error: message });
 };
 
