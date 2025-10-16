@@ -1,9 +1,9 @@
 function extractBaseType(zodType) {
     let current = zodType;
-    while (current._def.typeName === "ZodOptional" || current._def.typeName === "ZodNullable") {
-        current = current._def.innerType;
+    while (current.def.type === "optional" || current.def.type === "nullable") {
+        current = current.def.innerType;
     }
-    return current._def.typeName;
+    return current.def.type;
 }
 
 export function preprocessConvertion(data, shape) {
@@ -13,12 +13,12 @@ export function preprocessConvertion(data, shape) {
                 // case "ZodString":
                 //     data[key] = decodeURIComponent(data[key]);
                 //     break;
-                case "ZodNumber":
+                case "number":
                     const parsed = Number(data[key]);
                     if(isNaN(data[key])) data[key] = undefined;
                     else data[key] = parsed;
                     break;
-                case "ZodBoolean":
+                case "boolean":
                     data[key] = data[key] === "true";
                     break;
                 default:
