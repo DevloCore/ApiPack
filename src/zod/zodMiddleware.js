@@ -1,7 +1,7 @@
 /// <reference path="../types/zodMiddleware.d.ts" />
 
 import { z } from "zod";
-import { preprocessConvertion } from "./zodMiddlewareHelper.js";
+import { preprocessBodyConvertion, preprocessConvertion } from "./zodMiddlewareHelper.js";
 
 function sendErrors(errors, res) {
     const issue = errors[0].errors.issues[0];
@@ -21,6 +21,7 @@ export const zodSchema_Name = z.object({ name: z.string() });
 
 export function validateBody(schema) {
     return function (req, res, next) {
+		preprocessBodyConvertion(req.body, schema.shape);
         var parsed = schema.safeParse(req.body);
         if (parsed.success) {
             return next();
