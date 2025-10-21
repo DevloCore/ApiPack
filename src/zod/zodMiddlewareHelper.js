@@ -9,6 +9,7 @@ function extractBaseType(zodType) {
 export const isValidDate = (d) => d instanceof Date && !isNaN(d.getTime())
 
 export function preprocessBodyConvertion(data, shape) {
+	if(!data) return;
 	for(const key in shape) {
         if(typeof data[key] === "string") {
             switch(extractBaseType(shape[key])) {
@@ -25,6 +26,7 @@ export function preprocessBodyConvertion(data, shape) {
 }
 
 export function preprocessConvertion(data, shape) {
+	if(!data) return;
     for(const key in shape) {
         if(typeof data[key] === "string") {
             switch(extractBaseType(shape[key])) {
