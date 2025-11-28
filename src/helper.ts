@@ -2,7 +2,7 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import fs from "fs";
 
-function findProjectRootFrom(startDir) {
+function findProjectRootFrom(startDir: string): string {
   let currentDir = dirname(dirname(startDir));
 
   // Cherche le fichier 'package.json' dans le répertoire actuel ou ses parents
@@ -15,7 +15,7 @@ function findProjectRootFrom(startDir) {
   return currentDir;
 }
 
-function findProjectRoot() {
+function findProjectRoot(): string {
   // 1) Essaye d'abord depuis le working directory (projet qui exécute)
   try {
     const cwdReal = fs.realpathSync(process.cwd());
@@ -31,10 +31,10 @@ function findProjectRoot() {
 
 export const projectRoot = findProjectRoot();
 
-export function workingDirectory() {
+export function workingDirectory(): string {
   return process.cwd();
 }
 
-export function isProductionEnvironment() {
+export function isProductionEnvironment(): boolean {
     return process.env.NODE_ENV === "production";
 }

@@ -1,23 +1,41 @@
 {
   "name": "@devlocore/apipack",
   "version": "1.2.0",
-  "main": "index.js",
-  "scripts": {},
+  "main": "./dist/helper.js",
+  "types": "./dist/helper.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
   "author": "DevloCore",
   "license": "SEE IN LICENSE.txt",
   "description": "",
   "type": "module",
   "peerDependencies": {
     "express": "*",
-	"moment": "*",
-	"zod": "*"
+    "moment": "*",
+    "zod": "*"
   },
   "files": [
-    "/src"
+    "/dist"
   ],
   "exports": {
-    "./zod": "./src/zod/zodMiddleware.js",
-    "./helper": "./src/helper.js",
-    "./log" : "./src/logHelper.js"
+    "./zod": {
+      "types": "./dist/zod/zodMiddleware.d.ts",
+      "import": "./dist/zod/zodMiddleware.js"
+    },
+    "./helper": {
+      "types": "./dist/helper.d.ts",
+      "import": "./dist/helper.js"
+    },
+    "./log": {
+      "types": "./dist/logHelper.d.ts",
+      "import": "./dist/logHelper.js"
+    }
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.5",
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
   }
 }
