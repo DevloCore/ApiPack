@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { z, ZodObject, ZodError, ZodType } from "zod";
+import { z, ZodObject, ZodError, ZodType, ZodSchema, infer as ZodInfer } from "zod";
 import { preprocessBodyConversion, preprocessConversion } from "./zodMiddlewareHelper.js";
 
 // Extend Express Request to include validatedQuery
 declare module 'express-serve-static-core' {
-    interface Request {
-        validatedQuery?: Record<string, unknown>;
+    interface Request<P, ResBody, ReqBody, ReqQuery> {
+        validatedQuery?: ReqQuery;
     }
 }
 
@@ -24,9 +24,11 @@ export const zodSchema_Id = z.object({ id: z.number() });
 export const zodSchema_IdString = z.object({ id: z.string() });
 export const zodSchema_Name = z.object({ name: z.string() });
 
-export function validateBody<T extends Record<string, ZodType>>(schema: ZodObject<T>): RequestHandler {
-    return function (req: Request, res: Response, next: NextFunction): void {
-        preprocessBodyConversion(req.body as Record<string, unknown>, schema.shape as Record<string, ZodType>);
+export function validateBody<TBody>(schema: ZodSchema<TBody>): RequestHandler<Request['params'], unknown, TBody, Request['query']> {
+    return function (req: Request<Request['params'], unknown, TBody, Request['query']>, res: Response, next: NextFunction): void {
+        if (schema instanceof ZodObject) {
+            preprocessBodyConversion(req.body as Record<string, unknown>, (schema as ZodObject<Record<string, ZodType>>).shape as Record<string, ZodType>);
+        }
         const parsed = schema.safeParse(req.body);
         if (parsed.success) {
             next();
@@ -37,9 +39,11 @@ export function validateBody<T extends Record<string, ZodType>>(schema: ZodObjec
     };
 }
 
-export function validateParams<T extends Record<string, ZodType>>(schema: ZodObject<T>): RequestHandler {
-    return function (req: Request, res: Response, next: NextFunction): void {
-        preprocessConversion(req.params as Record<string, unknown>, schema.shape as Record<string, ZodType>);
+export function validateParams<TParams extends Request['params']>(schema: ZodSchema<TParams>): RequestHandler<TParams, unknown, unknown, Request['query']> {
+    return function (req: Request<TParams, unknown, unknown, Request['query']>, res: Response, next: NextFunction): void {
+        if (schema instanceof ZodObject) {
+            preprocessConversion(req.params as Record<string, unknown>, (schema as ZodObject<Record<string, ZodType>>).shape as Record<string, ZodType>);
+        }
         const parsed = schema.safeParse(req.params);
         if (parsed.success) {
             next();
@@ -50,12 +54,14 @@ export function validateParams<T extends Record<string, ZodType>>(schema: ZodObj
     };
 }
 
-export function validateQuery<T extends Record<string, ZodType>>(schema: ZodObject<T>): RequestHandler {
-    return function (req: Request, res: Response, next: NextFunction): void {
+export function validateQuery<TQuery>(schema: ZodSchema<TQuery>): RequestHandler<Request['params'], unknown, unknown, TQuery> {
+    return function (req: Request<Request['params'], unknown, unknown, TQuery>, res: Response, next: NextFunction): void {
         const copy = { ...req.query } as Record<string, unknown>;
-        preprocessConversion(copy, schema.shape as Record<string, ZodType>); //We can't change req.query directly
+        if (schema instanceof ZodObject) {
+            preprocessConversion(copy, (schema as ZodObject<Record<string, ZodType>>).shape as Record<string, ZodType>); //We can't change req.query directly
+        }
         const parsed = schema.safeParse(copy);
-        req.validatedQuery = copy;
+        req.validatedQuery = copy as TQuery;
         if (parsed.success) {
             next();
         }
