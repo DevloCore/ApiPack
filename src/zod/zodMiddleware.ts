@@ -2,23 +2,14 @@ import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { ParsedQs } from 'qs';
 import { z, ZodObject, ZodError, ZodType, ZodSchema, infer as ZodInfer } from "zod";
 import { preprocessBodyConversion, preprocessConversion } from "./zodMiddlewareHelper.js";
-import 'express'
 
-// declare global {
-// 	namespace Express {
-// 		interface Request<ReqQuery extends { query?: any } = { query?: any }> {
-// 			validatedQuery?: ReqQuery['query'];
-// 			test: string;
-// 		}
-// 	}
-// }
+// Extend Express Request interface to include validatedQuery
 
-// declare module 'express-serve-static-core' {
-//     export interface Request {
-//         validatedQuery?: Request['query'];
-// 		test: number;
-//     }
-// }
+declare module 'express-serve-static-core' {
+    export interface Request {
+        validatedQuery?: this['query'];
+    }
+}
 
 interface ValidationError {
     type: string;
@@ -64,14 +55,14 @@ export function validateParams<TParams>(schema: ZodSchema<TParams>) {
         }
     };
 }
-export function validateQuery<TQuery extends ParsedQs>(schema: ZodSchema<TQuery>) {
-    return function (req: Request<Request['params'], unknown, unknown, TQuery>, res: Response, next: NextFunction): void {
+export function validateQuery<TQuery>(schema: ZodSchema<TQuery>) {
+    return function (req: Request<Request['params'], unknown, Request['body'], TQuery>, res: Response, next: NextFunction): void {
         const copy = { ...req.query } as Record<string, unknown>;
         if (schema instanceof ZodObject) {
             preprocessConversion(copy, (schema as ZodObject<Record<string, ZodType>>).shape as Record<string, ZodType>); //We can't change req.query directly
         }
         const parsed = schema.safeParse(copy);
-        req.validatedQuery = copy as TQuery;
+        req.validatedQuery = parsed.data as TQuery;
         if (parsed.success) {
             next();
         }
@@ -80,3 +71,5 @@ export function validateQuery<TQuery extends ParsedQs>(schema: ZodSchema<TQuery>
         }
     };
 }
+
+export {}
