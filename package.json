@@ -1,11 +1,12 @@
 {
   "name": "@devlocore/apipack",
   "version": "1.2.0",
-  "main": "./dist/helper.js",
-  "types": "./dist/helper.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+	"dev": "tsc --watch"
   },
   "author": "DevloCore",
   "license": "SEE IN LICENSE.txt",
@@ -17,9 +18,13 @@
     "zod": "*"
   },
   "files": [
-    "/dist"
+    "dist/"
   ],
   "exports": {
+	"." : {
+	  "types": "./dist/index.d.ts",
+	  "import": "./dist/index.js"
+	},
     "./zod": {
       "types": "./dist/zod/zodMiddleware.d.ts",
       "import": "./dist/zod/zodMiddleware.js"

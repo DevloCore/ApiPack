@@ -1,20 +1,15 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { z, ZodObject, ZodError, ZodType, ZodSchema, infer as ZodInfer } from "zod";
 import { preprocessBodyConversion, preprocessConversion } from "./zodMiddlewareHelper.js";
-
-// Extend Express Request to include validatedQuery
-declare module 'express-serve-static-core' {
-    interface Request<P, ResBody, ReqBody, ReqQuery> {
-        validatedQuery?: ReqQuery;
-    }
-}
+import "express";
+import QueryString from 'qs';
 
 interface ValidationError {
     type: string;
     errors: ZodError;
 }
 
-function sendErrors(errors: ValidationError[], res: Response): Response {
+export function sendErrors(errors: ValidationError[], res: Response): Response {
     const issue = errors[0].errors.issues[0];
     const message = issue.message;
     return res.status(400).send({ error: message });
@@ -23,8 +18,14 @@ function sendErrors(errors: ValidationError[], res: Response): Response {
 export const zodSchema_Id = z.object({ id: z.number() });
 export const zodSchema_IdString = z.object({ id: z.string() });
 export const zodSchema_Name = z.object({ name: z.string() });
+/*
+declare module '@devlocore/apipack/zod' {
+    export declare function validateBody<TBody>(zodSchema: ZodSchema<TBody>): RequestHandler<ParamsDictionary, any, TBody, any>;
+    export declare function validateParams<TParams>(zodSchema: ZodSchema<TParams>): RequestHandler<TParams, any, any, any>;
+    export declare function validateQuery<TQuery>(zodSchema: ZodSchema<TQuery>): RequestHandler<ParamsDictionary, any, any, TQuery>;
+}*/
 
-export function validateBody<TBody>(schema: ZodSchema<TBody>): RequestHandler<Request['params'], unknown, TBody, Request['query']> {
+export function validateBody<TBody>(schema: ZodSchema<TBody>) {
     return function (req: Request<Request['params'], unknown, TBody, Request['query']>, res: Response, next: NextFunction): void {
         if (schema instanceof ZodObject) {
             preprocessBodyConversion(req.body as Record<string, unknown>, (schema as ZodObject<Record<string, ZodType>>).shape as Record<string, ZodType>);
@@ -39,7 +40,7 @@ export function validateBody<TBody>(schema: ZodSchema<TBody>): RequestHandler<Re
     };
 }
 
-export function validateParams<TParams extends Request['params']>(schema: ZodSchema<TParams>): RequestHandler<TParams, unknown, unknown, Request['query']> {
+export function validateParams<TParams extends Request['params']>(schema: ZodSchema<TParams>) {
     return function (req: Request<TParams, unknown, unknown, Request['query']>, res: Response, next: NextFunction): void {
         if (schema instanceof ZodObject) {
             preprocessConversion(req.params as Record<string, unknown>, (schema as ZodObject<Record<string, ZodType>>).shape as Record<string, ZodType>);
@@ -54,7 +55,7 @@ export function validateParams<TParams extends Request['params']>(schema: ZodSch
     };
 }
 
-export function validateQuery<TQuery>(schema: ZodSchema<TQuery>): RequestHandler<Request['params'], unknown, unknown, TQuery> {
+export function validateQuery<TQuery extends QueryString.ParsedQs>(schema: ZodSchema<TQuery>) {
     return function (req: Request<Request['params'], unknown, unknown, TQuery>, res: Response, next: NextFunction): void {
         const copy = { ...req.query } as Record<string, unknown>;
         if (schema instanceof ZodObject) {
@@ -70,3 +71,5 @@ export function validateQuery<TQuery>(schema: ZodSchema<TQuery>): RequestHandler
         }
     };
 }
+
+export {}
