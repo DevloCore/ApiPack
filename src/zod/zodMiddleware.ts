@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { z, ZodObject, ZodError, ZodType } from "zod";
-import { preprocessBodyConvertion, preprocessConvertion } from "./zodMiddlewareHelper.js";
+import { preprocessBodyConversion, preprocessConversion } from "./zodMiddlewareHelper.js";
 
 // Extend Express Request to include validatedQuery
 declare module 'express-serve-static-core' {
@@ -26,7 +26,7 @@ export const zodSchema_Name = z.object({ name: z.string() });
 
 export function validateBody<T extends Record<string, ZodType>>(schema: ZodObject<T>): RequestHandler {
     return function (req: Request, res: Response, next: NextFunction): void {
-        preprocessBodyConvertion(req.body as Record<string, unknown>, schema.shape as Record<string, ZodType>);
+        preprocessBodyConversion(req.body as Record<string, unknown>, schema.shape as Record<string, ZodType>);
         const parsed = schema.safeParse(req.body);
         if (parsed.success) {
             next();
@@ -39,7 +39,7 @@ export function validateBody<T extends Record<string, ZodType>>(schema: ZodObjec
 
 export function validateParams<T extends Record<string, ZodType>>(schema: ZodObject<T>): RequestHandler {
     return function (req: Request, res: Response, next: NextFunction): void {
-        preprocessConvertion(req.params as Record<string, unknown>, schema.shape as Record<string, ZodType>);
+        preprocessConversion(req.params as Record<string, unknown>, schema.shape as Record<string, ZodType>);
         const parsed = schema.safeParse(req.params);
         if (parsed.success) {
             next();
@@ -53,7 +53,7 @@ export function validateParams<T extends Record<string, ZodType>>(schema: ZodObj
 export function validateQuery<T extends Record<string, ZodType>>(schema: ZodObject<T>): RequestHandler {
     return function (req: Request, res: Response, next: NextFunction): void {
         const copy = { ...req.query } as Record<string, unknown>;
-        preprocessConvertion(copy, schema.shape as Record<string, ZodType>); //We can't change req.query directly
+        preprocessConversion(copy, schema.shape as Record<string, ZodType>); //We can't change req.query directly
         const parsed = schema.safeParse(copy);
         req.validatedQuery = copy;
         if (parsed.success) {
