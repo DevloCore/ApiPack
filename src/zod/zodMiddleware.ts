@@ -1,14 +1,24 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
+import { ParsedQs } from 'qs';
 import { z, ZodObject, ZodError, ZodType, ZodSchema, infer as ZodInfer } from "zod";
 import { preprocessBodyConversion, preprocessConversion } from "./zodMiddlewareHelper.js";
+import 'express'
 
-// Extend Express Request to include validatedQuery
-// Note: validatedQuery will be typed as the TQuery generic when using validateQuery
-declare module 'express-serve-static-core' {
-    interface Request {
-        validatedQuery?: this['query'];
-    }
-}
+// declare global {
+// 	namespace Express {
+// 		interface Request<ReqQuery extends { query?: any } = { query?: any }> {
+// 			validatedQuery?: ReqQuery['query'];
+// 			test: string;
+// 		}
+// 	}
+// }
+
+// declare module 'express-serve-static-core' {
+//     export interface Request {
+//         validatedQuery?: Request['query'];
+// 		test: number;
+//     }
+// }
 
 interface ValidationError {
     type: string;
@@ -54,8 +64,7 @@ export function validateParams<TParams>(schema: ZodSchema<TParams>) {
         }
     };
 }
-
-export function validateQuery<TQuery>(schema: ZodSchema<TQuery>) {
+export function validateQuery<TQuery extends ParsedQs>(schema: ZodSchema<TQuery>) {
     return function (req: Request<Request['params'], unknown, unknown, TQuery>, res: Response, next: NextFunction): void {
         const copy = { ...req.query } as Record<string, unknown>;
         if (schema instanceof ZodObject) {
