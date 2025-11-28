@@ -1,24 +1,14 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { z, ZodObject, ZodError, ZodType, ZodSchema, infer as ZodInfer } from "zod";
 import { preprocessBodyConversion, preprocessConversion } from "./zodMiddlewareHelper.js";
-import "express";
 
-
-declare global {
-	export namespace Express {
-		interface Request {
-			validatedQuery?: any;
-			test: string;
-		}
-	}
+// Extend Express Request to include validatedQuery
+// Note: validatedQuery will be typed as the TQuery generic when using validateQuery
+declare module 'express-serve-static-core' {
+    interface Request {
+        validatedQuery?: this['query'];
+    }
 }
-
-// declare module 'express-serve-static-core' {
-//     interface Request {
-//         validatedQuery?: Request['query'];
-// 		test: string;
-//     }
-// }
 
 interface ValidationError {
     type: string;
@@ -34,12 +24,6 @@ export function sendErrors(errors: ValidationError[], res: Response): Response {
 export const zodSchema_Id = z.object({ id: z.number() });
 export const zodSchema_IdString = z.object({ id: z.string() });
 export const zodSchema_Name = z.object({ name: z.string() });
-/*
-declare module '@devlocore/apipack/zod' {
-    export declare function validateBody<TBody>(zodSchema: ZodSchema<TBody>): RequestHandler<ParamsDictionary, any, TBody, any>;
-    export declare function validateParams<TParams>(zodSchema: ZodSchema<TParams>): RequestHandler<TParams, any, any, any>;
-    export declare function validateQuery<TQuery>(zodSchema: ZodSchema<TQuery>): RequestHandler<ParamsDictionary, any, any, TQuery>;
-}*/
 
 export function validateBody<TBody>(schema: ZodSchema<TBody>) {
     return function (req: Request<Request['params'], unknown, TBody, Request['query']>, res: Response, next: NextFunction): void {
