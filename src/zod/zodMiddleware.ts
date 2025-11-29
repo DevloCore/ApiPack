@@ -4,7 +4,7 @@ import { preprocessBodyConversion, preprocessConversion } from "./zodMiddlewareH
 
 declare module 'express-serve-static-core' {
 	interface Request {
-		validatedQuery?: this['query'];
+		validatedQuery: this['query'];
 	}
 }
 
