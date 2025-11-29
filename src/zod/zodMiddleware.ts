@@ -1,14 +1,11 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import { ParsedQs } from 'qs';
 import { z, ZodObject, ZodError, ZodType, ZodSchema, infer as ZodInfer } from "zod";
 import { preprocessBodyConversion, preprocessConversion } from "./zodMiddlewareHelper.js";
 
-// Extend Express Request interface to include validatedQuery
-
 declare module 'express-serve-static-core' {
-    export interface Request {
-        validatedQuery?: this['query'];
-    }
+	interface Request {
+		validatedQuery?: this['query'];
+	}
 }
 
 interface ValidationError {
