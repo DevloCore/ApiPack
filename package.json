@@ -13,8 +13,8 @@
   "description": "",
   "type": "module",
   "peerDependencies": {
-    "express": "*",
-    "zod": "*"
+    "express": ">=4.0.0",
+    "zod": "^4.0.0"
   },
   "files": [
     "dist/"
