@@ -13,7 +13,7 @@ npm install @devlocore/apipack
 This package requires the following peer dependencies:
 
 ```bash
-npm install express moment zod
+npm install express zod
 ```
 
 ## Modules
