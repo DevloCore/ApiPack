@@ -16,17 +16,22 @@ function findProjectRootFrom(startDir: string): string {
 }
 
 function findProjectRoot(): string {
-  // 1) Essaye d'abord depuis le working directory (projet qui exécute)
-  try {
-    const cwdReal = fs.realpathSync(process.cwd());
-	return cwdReal;
-  } catch (e) {
-    // 2) Fallback : cas où process.cwd() n'est pas ce qu'on attend (rare)
-    const pkgDir = dirname(fileURLToPath(import.meta.url));
+//   // 1) Essaye d'abord depuis le working directory (projet qui exécute)
+//   try {
+//     const cwdReal = fs.realpathSync(process.cwd());
+// 	return cwdReal;
+//   } catch (e) {
+//     // 2) Fallback : cas où process.cwd() n'est pas ce qu'on attend (rare)
+//     const pkgDir = dirname(fileURLToPath(import.meta.url));
+//     // si tu veux commencer un niveau au-dessus comme avant :
+//     const start = dirname(pkgDir);
+//     return findProjectRootFrom(start);
+//   }
+
+	const pkgDir = dirname(fileURLToPath(import.meta.url));
     // si tu veux commencer un niveau au-dessus comme avant :
     const start = dirname(pkgDir);
     return findProjectRootFrom(start);
-  }
 }
 
 export const projectRoot = findProjectRoot();
