@@ -1,5 +1,4 @@
 import { projectRoot } from "./helper.js";
-import moment from "moment";
 import fs from "node:fs";
 import path from 'node:path';
 
@@ -14,7 +13,13 @@ function withDatePrefix(logFn: (...args: unknown[]) => void): (...args: unknown[
     };
 }
 
+let hasSetup = false;
+
 export function logWithDatePrefix(): void {
+	if (hasSetup) {
+		console.warn("logWithDatePrefix has already been called. Skipping re-setup.");
+	}
+	hasSetup = true;
     const originalLog = console.log;
     const originalError = console.error;
     const originalWarn = console.warn;
@@ -27,7 +32,7 @@ export function logWithDatePrefix(): void {
 }
 
 export function redirectLogs(): void {
-    const timeStr = moment().format("DD-MM-YYYY HH-mm-ss");
+	const timeStr = new Date().toISOString().replace(/:/g, '-');
     //    const __dirname = dirname(fileURLToPath(import.meta.url));
 
     const logDir = path.join(projectRoot, 'logs');
